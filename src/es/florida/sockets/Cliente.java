@@ -8,37 +8,50 @@ import java.util.Scanner;
 
 public class Cliente {
 
-	public static void main(String[] args) throws IOException, ClassNotFoundException 
+	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
 		Cliente objetoCliente = new Cliente();
 		Scanner sc = new Scanner(System.in);
-		
+	
 		// 1 conectarse al servidor
 		String host = "localhost";
-		int puerto = objetoCliente.IntroducirPuerto( sc );
-		Socket cliente = new Socket( host, puerto );
+		//int puerto = objetoCliente.IntroducirPuerto( sc );
+		int puerto = 1234;
 		System.out.println( "CLIENTE : Arranca el cliente" );
+		Socket cliente = new Socket( host, puerto );
 		
 		// 3 recibir del servidor el objeto cuenta
 		ObjectInputStream inputObjeto = new ObjectInputStream( cliente.getInputStream() );
 		Cuenta cuentaMod = (Cuenta) inputObjeto.readObject();
-		System.out.println( "CLIENTE : Recibo del servidor el objeto cuenta" );
+		//System.out.println( "CLIENTE : Recibido objeto cuenta de servidor > " + cuentaMod.GetUser() );
 		
 		// 5 rellenar la contrasenya con setcontrasenya();
-		cuentaMod.SetPassword( objetoCliente.IntroducirContrasenya( sc ) );
+		//cuentaMod.SetPassword( objetoCliente.IntroducirContrasenya( sc ) );
+		cuentaMod.SetPassword( "hola1234" );
+		
+		//Thread.sleep(1000);
 		
 		// 6 devolver al servidor el objeto contrasenya con el atributo rellenado
 		ObjectOutputStream outputObjeto = new ObjectOutputStream( cliente.getOutputStream() );
 		outputObjeto.writeObject( cuentaMod );
-		System.out.println( "CLIENTE : Envio al servidor la cuenta con la contrsenya" );		
+		//System.out.println( "CLIENTE : Envio al servidor la cuenta con la contrsenya" );		
+		
+		
+		//Thread.sleep(1000);
 		
 		// 8 recibir el objeto contrasenya con el campo contrasenyaEncryptada relleno
-		cuentaMod = (Cuenta) inputObjeto.readObject();
-		System.out.println( "CLIENTE : Recibo del servidor el objeto cuenta y la contrasenya cifrada" );
+		//inputObjeto = new ObjectInputStream( cliente.getInputStream() );
+		//cuentaMod = (Cuenta) inputObjeto.readObject();
+		//System.out.println( "CLIENTE : Recibo del servidor el objeto cuenta y la contrasenya cifrada" );
 		
 		// 9 mostrar por pantalla la contasenya encryptada del objeto contrasenya
-		String contrasenyaCifrada = cuentaMod.GetEncryptedPassword();
-		System.out.println( contrasenyaCifrada );
+		//String contrasenyaCifrada = cuentaMod.GetEncryptedPassword();
+		//System.out.println( contrasenyaCifrada );
+		
+		
+		outputObjeto.close();
+		inputObjeto.close();
+		cliente.close();
 	}
 	
 	public String IntroducirContrasenya( Scanner sc ) 
@@ -55,7 +68,7 @@ public class Cliente {
 				System.out.print( "> Introduzca la contrasenya : " );
 				contrasenya = sc.next();
 				
-				return contrasenya;
+				return contrasenya; // Modificar
 			}
 			catch( Exception e )
 			{

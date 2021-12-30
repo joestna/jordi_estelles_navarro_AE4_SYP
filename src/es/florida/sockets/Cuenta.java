@@ -1,12 +1,22 @@
 package es.florida.sockets;
 
-public class Cuenta 
+import java.io.Serializable;
+
+public class Cuenta implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	//
-	public String user = "";
+	public String user = "Prueba";
 	public String password = "";
 	//
 	public String EncPassword = "";
+	
+	
+	public String GetPassword()
+	{
+		return this.password;
+	}
 	
 	
 	public void SetPassword( String contrasenya )

@@ -29,24 +29,37 @@ public class Servidor {
 		ServerSocket servidor = new ServerSocket( numeroPuerto );
 		System.err.println( "SERVIDOR : Esuchando ..." );
 		Socket cliente = servidor.accept();
+		//System.err.println( "SERVIDOR : Cliente aceptado " );
 		
 		// 2.1 enviar al cliente un objeto de la clase contrasenya
 		ObjectOutputStream outputObjeto = new ObjectOutputStream( cliente.getOutputStream() );
 		Cuenta cuenta = new Cuenta();
 		outputObjeto.writeObject( cuenta );
-		System.err.println( "SERVIDOR : Enviando a cliente el objeto cuenta" );
+		//System.err.println( "SERVIDOR : Enviando a cliente el objeto cuenta con usuario > " + cuenta.GetUser());
 				
 		// 7 recibir del cliente el objeto contrasenya modificado con la contrasenya
-		ObjectInputStream inObjeto = new ObjectInputStream( cliente.getInputStream() );
-		Cuenta cuentaMod = (Cuenta) inObjeto.readObject();
-		System.err.println( "SERVIDOR : Recibido de cliente el objeto cuenta con la contrasenya completada" );
+		ObjectInputStream inputObjeto = new ObjectInputStream( cliente.getInputStream() );
+		Cuenta cuentaMod = (Cuenta) inputObjeto.readObject();
+		//System.err.println( "SERVIDOR : Recibido de cliente el objeto cuenta con la contrasenya completada" );
+		System.out.println( "SERVIDOR : " + cuentaMod.GetPassword() );
+		
 		
 		// 7.5 cifrar la contrasenya
-		cuentaMod.SetEncryptedPassword( objetoServidor.CifrarContrasenya( cuentaMod.GetEncryptedPassword() ));
+		
+		cuentaMod.SetEncryptedPassword( objetoServidor.CifrarContrasenya( cuentaMod.GetPassword() ));
+		System.out.println(cuentaMod.GetEncryptedPassword());		
 		
 		// 7.9 enviar al cliente el objeto contasenya con la contrasenya cifrada
-		outputObjeto.writeObject( cuentaMod );
-		System.err.println( "SERVIDOR : Enviando a cliente el objeto cuenta con la contrasenya cifrada" );
+		//outputObjeto = new ObjectOutputStream( cliente.getOutputStream() );
+		//outputObjeto.writeObject( cuentaMod );
+		//System.err.println( "SERVIDOR : Enviando a cliente el objeto cuenta con la contrasenya cifrada" );
+		//System.out.println( cuentaMod.GetPassword());
+		
+		
+		outputObjeto.close();
+		inputObjeto.close();
+		cliente.close();
+		servidor.close();
 	}
 	
 	
