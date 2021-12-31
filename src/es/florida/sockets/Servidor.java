@@ -3,8 +3,11 @@ package es.florida.sockets;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
 public class Servidor {
@@ -21,7 +24,7 @@ public class Servidor {
 			"{", "|", "}", "~"
 	};
 	
-	public static void main(String[] args) throws IOException, ClassNotFoundException
+	public static void main(String[] args) throws IOException, ClassNotFoundException, NoSuchAlgorithmException
 	{
 		Scanner sc = new Scanner(System.in);
 		Servidor objetoServidor = new Servidor();
@@ -111,7 +114,31 @@ public class Servidor {
 	}
 	
 	
-	public String SeleccionarCifrado( Scanner sc, String contrasenya )
+	public String MD5( String contrasenyaADescifrar ) throws NoSuchAlgorithmException
+	{
+		try
+		{
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			byte[] messageDigest = md.digest( contrasenyaADescifrar.getBytes());
+			  
+	        BigInteger no = new BigInteger(1, messageDigest);
+	        String hashtext = no.toString(16);
+	        
+	        while (hashtext.length() < 32) 
+	        {
+	            hashtext = "0" + hashtext;
+	        }
+	        
+	        return hashtext;
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+            throw new RuntimeException(e);
+		}
+	}
+	
+	
+	public String SeleccionarCifrado( Scanner sc, String contrasenya ) throws NoSuchAlgorithmException
 	{
 		// Anyadir una expresion regular
 		sc = new Scanner(System.in);
@@ -141,7 +168,7 @@ public class Servidor {
 			return CifrarContrasenyaFacil(contrasenya);
 
 		case 2 :
-			//return CifradoMD5();
+			return MD5(contrasenya);
 			
 		}
 		
