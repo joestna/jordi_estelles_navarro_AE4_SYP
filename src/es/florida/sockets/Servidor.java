@@ -15,7 +15,7 @@ public class Servidor {
 	// Tabla ASCI caracteres basicos
 	String[] tablaASCII = 
 	{
-			" ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", "asdf", "-", ".", "/",
+			" ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", "´", "-", ".", "/",
 			"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
 			":", ";", "<", "=", ">", "?", "@",
 			"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
@@ -26,7 +26,6 @@ public class Servidor {
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException, NoSuchAlgorithmException
 	{
-		Scanner sc = new Scanner(System.in);
 		Servidor objetoServidor = new Servidor();
 		int numeroPuerto = 1234;
 		
@@ -40,23 +39,22 @@ public class Servidor {
 		ObjectOutputStream outputObjeto = new ObjectOutputStream( cliente.getOutputStream() );
 		Cuenta cuenta = new Cuenta();
 		outputObjeto.writeObject( cuenta );
-		System.err.println( "SERVIDOR : Enviando a cliente el objeto Cuenta" );
+		System.err.println( "SERVIDOR : Enviando a cliente el objeto Cuenta ... " );
 				
 		// recibir del cliente el objeto contrasenya modificado con la contrasenya
 		ObjectInputStream inputObjeto = new ObjectInputStream( cliente.getInputStream() );
-		System.err.println( "SERVIDOR : Esperando respuesta cliente" );
+		System.err.println( "SERVIDOR : Esperando respuesta cliente ... " );
 		Cuenta cuentaMod = (Cuenta) inputObjeto.readObject();
 		System.err.println( "SERVIDOR : Recibido de cliente el objeto cuenta con la contrasenya completada" );
 		
-		// cifrar la contrasenya		
-		cuentaMod.SetEncryptedPassword( objetoServidor.SeleccionarCifrado( sc, cuentaMod.GetPassword() ));
+		// cifrar la contrasenya
+		cuentaMod.SetEncryptedPassword( objetoServidor.SeleccionarCifrado( cuentaMod.GetPassword() ));
 		
 		// enviar al cliente el objeto contasenya con la contrasenya cifrada
 		outputObjeto = new ObjectOutputStream( cliente.getOutputStream() );
 		outputObjeto.writeObject( cuentaMod );
 		System.err.println( "SERVIDOR : Enviando a cliente el objeto cuenta con la contrasenya cifrada ... " );
 		
-		sc.close();
 		outputObjeto.close();
 		inputObjeto.close();
 		cliente.close();
@@ -69,6 +67,7 @@ public class Servidor {
 	{
 		String[] contrasenyaDividida = contrasenya.split("");		
 		String contrasenyaCifrada = "";
+		boolean matches = false;
 		
 		for( int i = 0; i < contrasenyaDividida.length; i++ )
 		{
@@ -77,12 +76,19 @@ public class Servidor {
 				if( contrasenyaDividida[i].equals(tablaASCII[j]) && j == tablaASCII.length ) 
 				{
 					contrasenyaCifrada += tablaASCII[0];
+					matches = true;
 				}
 				else if(contrasenyaDividida[i].equals(tablaASCII[j]))
 				{
 					contrasenyaCifrada += tablaASCII[j + 1];
+					matches = true;
 				}
 			}
+		}
+		
+		if(!matches)
+		{
+			System.out.println("SERVIDOR : La contrasenya recibida del cliente no puede cifrarse con este metodo de cifrado");
 		}
 		
 		return contrasenyaCifrada;
@@ -138,22 +144,22 @@ public class Servidor {
 	}
 	
 	
-	public String SeleccionarCifrado( Scanner sc, String contrasenya ) throws NoSuchAlgorithmException
+	public String SeleccionarCifrado( String contrasenya ) throws NoSuchAlgorithmException
 	{
 		// Anyadir una expresion regular
-		sc = new Scanner(System.in);
+		Scanner sc = new Scanner(System.in);
 		
-		boolean error = false;
+		boolean error = true;
 		int tipoCifrado = 0;
 		
-		while( !error || tipoCifrado != 1 && tipoCifrado != 2)
+		while( error || tipoCifrado != 1 && tipoCifrado != 2)
 		{
 			try
 			{
 				System.err.print( "> Introduzca el tipo de cifrado requerido : 1. Basico / 2. MD5 : " );
 				tipoCifrado = sc.nextInt();
 				
-				error = true;
+				error = false;
 			}
 			catch( Exception e )
 			{
@@ -168,10 +174,10 @@ public class Servidor {
 			return CifrarContrasenyaFacil(contrasenya);
 
 		case 2 :
-			return MD5(contrasenya);
-			
+			return MD5(contrasenya);			
 		}
 		
+		sc.close();
 		return contrasenya;		
 	}
 }

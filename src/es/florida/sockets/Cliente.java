@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class Cliente {
 
@@ -42,7 +43,6 @@ public class Cliente {
 		String contrasenyaCifrada = cuentaMod.GetEncryptedPassword();
 		System.out.println( "FINAL : CLIENTE ;  La contrasenya cifrada es : " + contrasenyaCifrada );
 		
-		
 		sc.close();
 		outputObjeto.close();
 		inputObjeto.close();
@@ -51,47 +51,48 @@ public class Cliente {
 	
 	public String IntroducirContrasenya( Scanner sc ) 
 	{
-		// Anyadir una expresion regular
+		// Resetear el Scanner
 		sc = new Scanner(System.in);
 		
-		boolean error = false;
+		boolean error = true;
 		String contrasenya = "";
 		
-		while( !error )
-		{
+		while( error )
+		{			
 			try
 			{
 				System.out.print( "> Introduzca la contrasenya : " );
 				contrasenya = sc.next();
 				
-				return contrasenya; // Modificar
+				error = false;
 			}
 			catch( Exception e )
 			{
 				System.out.println( "Error, debe introducir una contrasenya valida" );
+				sc.nextLine();
 			}
 		}
 		
-		// Es imposible que llegue aqui
 		return contrasenya;		
 	}
 	
 	
 	public int IntroducirPuerto( Scanner sc )
 	{		
+		// Resetear el Scanner
 		sc = new Scanner(System.in);
 		
-		boolean error = false;
+		boolean error = true;
 		int puerto = 0;
 		
-		while( !error )
+		while( error )
 		{
 			try
 			{
 				System.out.print( "> Introduzca el numero de puerto a conectarse : " );
 				puerto = sc.nextInt(); // Si el valor introducido por teclado no es un Scanner.nextInt() en el try hay que limpiar el buffer del scanner
 				
-				return puerto;
+				error = false;
 			}
 			catch( Exception e )
 			{
@@ -100,8 +101,7 @@ public class Cliente {
 				// Tambien se podria haber hecho con sc = new Scanner(System.in)
 			}
 		}
-		
-		// Es imposible que llegue aqui
+	
 		return puerto;		
 	}
 }
