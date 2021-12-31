@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Servidor {
 
@@ -22,40 +23,37 @@ public class Servidor {
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
+		Scanner sc = new Scanner(System.in);
 		Servidor objetoServidor = new Servidor();
 		int numeroPuerto = 1234;
 		
-		// 2 esperar que el cliente se conecte
+		// esperar que el cliente se conecte
 		ServerSocket servidor = new ServerSocket( numeroPuerto );
 		System.err.println( "SERVIDOR : Esuchando ..." );
 		Socket cliente = servidor.accept();
-		//System.err.println( "SERVIDOR : Cliente aceptado " );
+		System.err.println( "SERVIDOR : Cliente conectado " );
 		
-		// 2.1 enviar al cliente un objeto de la clase contrasenya
+		// enviar al cliente un objeto de la clase contrasenya
 		ObjectOutputStream outputObjeto = new ObjectOutputStream( cliente.getOutputStream() );
 		Cuenta cuenta = new Cuenta();
 		outputObjeto.writeObject( cuenta );
-		//System.err.println( "SERVIDOR : Enviando a cliente el objeto cuenta con usuario > " + cuenta.GetUser());
+		System.err.println( "SERVIDOR : Enviando a cliente el objeto Cuenta" );
 				
-		// 7 recibir del cliente el objeto contrasenya modificado con la contrasenya
+		// recibir del cliente el objeto contrasenya modificado con la contrasenya
 		ObjectInputStream inputObjeto = new ObjectInputStream( cliente.getInputStream() );
+		System.err.println( "SERVIDOR : Esperando respuesta cliente" );
 		Cuenta cuentaMod = (Cuenta) inputObjeto.readObject();
-		//System.err.println( "SERVIDOR : Recibido de cliente el objeto cuenta con la contrasenya completada" );
-		System.out.println( "SERVIDOR : " + cuentaMod.GetPassword() );
+		System.err.println( "SERVIDOR : Recibido de cliente el objeto cuenta con la contrasenya completada" );
 		
+		// cifrar la contrasenya		
+		cuentaMod.SetEncryptedPassword( objetoServidor.SeleccionarCifrado( sc, cuentaMod.GetPassword() ));
 		
-		// 7.5 cifrar la contrasenya
+		// enviar al cliente el objeto contasenya con la contrasenya cifrada
+		outputObjeto = new ObjectOutputStream( cliente.getOutputStream() );
+		outputObjeto.writeObject( cuentaMod );
+		System.err.println( "SERVIDOR : Enviando a cliente el objeto cuenta con la contrasenya cifrada ... " );
 		
-		cuentaMod.SetEncryptedPassword( objetoServidor.CifrarContrasenya( cuentaMod.GetPassword() ));
-		System.out.println(cuentaMod.GetEncryptedPassword());		
-		
-		// 7.9 enviar al cliente el objeto contasenya con la contrasenya cifrada
-		//outputObjeto = new ObjectOutputStream( cliente.getOutputStream() );
-		//outputObjeto.writeObject( cuentaMod );
-		//System.err.println( "SERVIDOR : Enviando a cliente el objeto cuenta con la contrasenya cifrada" );
-		//System.out.println( cuentaMod.GetPassword());
-		
-		
+		sc.close();
 		outputObjeto.close();
 		inputObjeto.close();
 		cliente.close();
@@ -64,7 +62,7 @@ public class Servidor {
 	
 	
 	// Utiliza la contrasenya que le pasa el cliente, la cifrara y completara el objeto contrasenya
-	public String CifrarContrasenya( String contrasenya )
+	public String CifrarContrasenyaFacil( String contrasenya )
 	{
 		String[] contrasenyaDividida = contrasenya.split("");		
 		String contrasenyaCifrada = "";
@@ -89,7 +87,7 @@ public class Servidor {
 	
 	
 	// Metodo para descifrar la contrasenya
-	public String DescifrarContrasenya( String contrasenyaDescifrar)
+	public String DescifrarContrasenyaFacil( String contrasenyaDescifrar)
 	{
 		String[] contrasenyaDescifrarDividida = contrasenyaDescifrar.split("");
 		String contrasenyaDescifrada = "";
@@ -111,6 +109,43 @@ public class Servidor {
 
 		return contrasenyaDescifrada;
 	}
+	
+	
+	public String SeleccionarCifrado( Scanner sc, String contrasenya )
+	{
+		// Anyadir una expresion regular
+		sc = new Scanner(System.in);
+		
+		boolean error = false;
+		int tipoCifrado = 0;
+		
+		while( !error || tipoCifrado != 1 && tipoCifrado != 2)
+		{
+			try
+			{
+				System.err.print( "> Introduzca el tipo de cifrado requerido : 1. Basico / 2. MD5 : " );
+				tipoCifrado = sc.nextInt();
+				
+				error = true;
+			}
+			catch( Exception e )
+			{
+				System.err.println( "Error, debe introducir un tipo de cifrado correcto" );
+				sc.nextLine();
+			}
+		}
+		
+		switch(tipoCifrado)
+		{
+		case 1 :
+			return CifrarContrasenyaFacil(contrasenya);
 
+		case 2 :
+			//return CifradoMD5();
+			
+		}
+		
+		return contrasenya;		
+	}
 }
 

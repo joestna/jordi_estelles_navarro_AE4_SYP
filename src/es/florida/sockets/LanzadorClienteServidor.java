@@ -22,7 +22,7 @@ public class LanzadorClienteServidor {
 		command.add(classpath);
 		command.add(className);
 		ProcessBuilder server = new ProcessBuilder(command);
-		server.inheritIO().start();
+		Process srv = server.inheritIO().start();
 		
 		// Creacion del proceso que lanzara la clase Cliente
 		className = "es.florida.sockets.Cliente";
@@ -32,9 +32,12 @@ public class LanzadorClienteServidor {
 		command.add(classpath);
 		command.add(className);
 		ProcessBuilder client = new ProcessBuilder(command);
-		client.inheritIO().start();
-		
-		
-		Thread.sleep(5000);		
+		Process cln = client.inheritIO().start();
+				
+		while( srv.isAlive() && cln.isAlive() )
+		{
+			// Programa Lanzador espera a que los dos procesos terminen
+			// Si no se hace esto no no funciona bien porque se corta la comunicacion
+		}		
 	}
 }
